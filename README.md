@@ -57,16 +57,7 @@ If running locally without Docker:
    ```bash
    npm install --legacy-peer-deps
    ```
-3. Create `.env` file from variables:
-   ```env
-   PORT=5000
-   MONGO_URI=mongodb://127.0.0.1:27017/codetrack
-   REDIS_URL=redis://127.0.0.1:6379
-   ACCESS_TOKEN_SECRET=access_token_secret_123456
-   REFRESH_TOKEN_SECRET=refresh_token_secret_654321
-   SESSION_SECRET=session_secret_key_123456
-   ```
-4. Run server:
+3. Run server:
    ```bash
    npm run dev
    ```
