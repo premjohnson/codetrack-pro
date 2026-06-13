@@ -1,0 +1,153 @@
+openapi: 3.0.0
+info:
+  title: CodeTrack API Specifications
+  version: 1.0.0
+  description: Enterprise MERN Stack Student Management & Coding Platform API Spec
+servers:
+  - url: http://localhost:5000/api/v1
+    description: Local API server
+paths:
+  /auth/signup:
+    post:
+      summary: Register a new student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: Registration successful, verification OTP sent.
+        '400':
+          description: Invalid parameters or user already exists.
+
+  /auth/login:
+    post:
+      summary: Authenticate user & set session cookies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful.
+        '400':
+          description: Invalid email or password.
+
+  /auth/logout:
+    post:
+      summary: Revoke session & clear cookies
+      security:
+        - CookieAuth: []
+      responses:
+        '200':
+          description: Logged out successfully.
+
+  /tasks:
+    get:
+      summary: List tasks with filters
+      parameters:
+        - name: difficulty
+          in: query
+          schema:
+            type: string
+        - name: technology
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tasks retrieved successfully.
+    post:
+      summary: Create a new task (Admin only)
+      security:
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - description
+                - deadline
+                - technology
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                difficulty:
+                  type: string
+                technology:
+                  type: string
+                deadline:
+                  type: string
+      responses:
+        '201':
+          description: Task created successfully.
+
+  /submissions/run:
+    post:
+      summary: Execute playground code sandbox
+      security:
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - taskId
+                - code
+                - language
+              properties:
+                taskId:
+                  type: string
+                code:
+                  type: string
+                language:
+                  type: string
+                customInput:
+                  type: string
+      responses:
+        '200':
+          description: Code execution results and quality analysis.
+
+  /health:
+    get:
+      summary: Verify API health metrics
+      responses:
+        '200':
+          description: Uptime and services status.
+
+components:
+  securitySchemes:
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: accessToken

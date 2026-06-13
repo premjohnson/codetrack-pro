@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # MongoDB Database Store
+  mongodb:
+    image: mongo:6.0
+    container_name: codetrack-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - codetrack-network
+
+  # Redis Cache & Queue Manager
+  redis:
+    image: redis:7.0-alpine
+    container_name: codetrack-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - codetrack-network
+
+  # Express Backend API Server
+  backend:
+    build: ./backend
+    container_name: codetrack-api
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=mongodb://mongodb:27017/codetrack
+      - REDIS_URL=redis://redis:6379
+      - PORT=5000
+      - ACCESS_TOKEN_SECRET=production_access_key_secret_2026
+      - REFRESH_TOKEN_SECRET=production_refresh_key_secret_2026
+      - SESSION_SECRET=production_session_secret_key_2026
+      - ADMIN_EMAIL=admin@codetrack.com
+      - ADMIN_PASSWORD=Admin@123456
+    depends_on:
+      - mongodb
+      - redis
+    volumes:
+      # Bind mounts host docker socket to enable local docker sandboxing
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - codetrack-network
+
+  # Vite React Frontend
+  frontend:
+    build: ./frontend
+    container_name: codetrack-web
+    depends_on:
+      - backend
+    networks:
+      - codetrack-network
+
+  # Nginx Gateway Reverse Proxy
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: codetrack-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - codetrack-network
+
+volumes:
+  mongo-data:
+
+networks:
+  codetrack-network:
+    driver: bridge
