@@ -1,7 +1,7 @@
 const cron = require('node-cron');
 const Streak = require('../models/Streak');
 const logger = require('../config/logger');
-
+//for streak logger
 const initStreakCron = () => {
   // Run every night at midnight: 0 0 * * *
   cron.schedule('0 0 * * *', async () => {
@@ -11,8 +11,7 @@ const initStreakCron = () => {
       yesterday.setDate(yesterday.getDate() - 1);
       yesterday.setHours(0, 0, 0, 0);
 
-      // Fetch all streaks where lastActivityDate is older than yesterday
-      // representing a missed consecutive day
+
       const streaks = await Streak.find({
         lastActivityDate: { $lt: yesterday }
       });
